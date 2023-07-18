@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Controller
 @RequestMapping("/api/auth")
 @AllArgsConstructor
@@ -34,6 +36,12 @@ public class AuthenticationController {
             return ResponseEntity.ok(response);
         }
 
-        return ResponseEntity.badRequest().build();
+        return ResponseEntity.badRequest().body(AuthenticationResponse.builder().errorMessage("refresh expired").build());
+    }
+
+    @GetMapping("/external")
+    public ResponseEntity<List<String>> external() {
+        List<String> roles = this.authenticationService.externalAuthorization();
+        return ResponseEntity.ok(roles);
     }
 }

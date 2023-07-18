@@ -4,6 +4,8 @@ import ch.lorele.newspringtest.model.dto.AuthenticationResponse;
 import ch.lorele.newspringtest.model.dto.SignInRequest;
 import ch.lorele.newspringtest.model.dto.SignUpRequest;
 
+import java.util.List;
+
 /**
  * This service is for all the auth stuff
  */
@@ -31,4 +33,11 @@ public interface AuthenticationService {
      * @return accessToken, refreshToken and user
      */
     AuthenticationResponse tryRefresh(String refreshToken);
+
+    /**
+     * Used for external authorization in the frontend
+     *
+     * @return user roles
+     */
+    List<String> externalAuthorization();
 }

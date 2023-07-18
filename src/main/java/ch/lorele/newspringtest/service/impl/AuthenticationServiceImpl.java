@@ -1,10 +1,10 @@
 package ch.lorele.newspringtest.service.impl;
 
-import ch.lorele.newspringtest.model.entity.Role;
-import ch.lorele.newspringtest.model.entity.User;
 import ch.lorele.newspringtest.model.dto.AuthenticationResponse;
 import ch.lorele.newspringtest.model.dto.SignInRequest;
 import ch.lorele.newspringtest.model.dto.SignUpRequest;
+import ch.lorele.newspringtest.model.entity.Role;
+import ch.lorele.newspringtest.model.entity.User;
 import ch.lorele.newspringtest.repo.RefreshTokenRepository;
 import ch.lorele.newspringtest.service.AuthenticationService;
 import ch.lorele.newspringtest.service.JwtService;
@@ -14,9 +14,11 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -76,5 +78,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
 
         return null;
+    }
+
+    @Override
+    public List<String> externalAuthorization() {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return user.getRoles().stream().map(Role::getName).toList();
     }
 }
