@@ -1,6 +1,6 @@
 package ch.lorele.newspringtest.security;
 
-import ch.lorele.newspringtest.security.filter.JwtAuthenticationFilter;
+import ch.lorele.newspringtest.security.filter.AuthenticationFilter;
 import ch.lorele.newspringtest.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -24,16 +24,18 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableMethodSecurity(securedEnabled = true)
 @AllArgsConstructor
 public class SecurityConfig {
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final AuthenticationFilter authenticationFilter;
     private final UserService userService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable);
-        http.authorizeHttpRequests(r -> r.requestMatchers("/api/auth/**").permitAll().anyRequest().authenticated());
+        http.authorizeHttpRequests(r -> r.requestMatchers("/api/auth/signin", "/api/auth/signup", "/api/auth/refresh").permitAll()
+                .requestMatchers("/api/auth/external").authenticated()
+                .anyRequest().authenticated());
         http.sessionManagement(m -> m.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.authenticationProvider(authenticationProvider())
-                .addFilterBefore(this.jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(this.authenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

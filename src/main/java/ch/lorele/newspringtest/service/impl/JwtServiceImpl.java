@@ -1,7 +1,7 @@
 package ch.lorele.newspringtest.service.impl;
 
-import ch.lorele.newspringtest.model.entity.RefreshToken;
 import ch.lorele.newspringtest.model.TokenType;
+import ch.lorele.newspringtest.model.entity.RefreshToken;
 import ch.lorele.newspringtest.model.entity.User;
 import ch.lorele.newspringtest.repo.RefreshTokenRepository;
 import ch.lorele.newspringtest.service.JwtService;
@@ -103,7 +103,7 @@ public class JwtServiceImpl implements JwtService {
     }
 
     private boolean isTokenType(String token, TokenType type) {
-        return this.extractClaim(token, claims -> claims.get("type")).equals(type);
+        return this.extractClaim(token, claims -> TokenType.valueOf((String) claims.get("type"))).equals(type);
     }
 
     private Claims extractAllClaims(String token) {

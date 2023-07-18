@@ -24,7 +24,7 @@ import java.io.IOException;
 @Component
 @Slf4j
 @AllArgsConstructor
-public class JwtAuthenticationFilter extends OncePerRequestFilter {
+public class AuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserService userService;
 
@@ -55,7 +55,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         } catch (ExpiredJwtException | UsernameNotFoundException e) {
             response.setStatus(403);
-            response.getWriter().print(e.getMessage());
+
+            if (e instanceof ExpiredJwtException) {
+                response.getWriter().println("session expired");
+            } else {
+                response.getWriter().print("wrong credentials");
+            }
+
+
             response.getWriter().flush();
             log.warn("[AuthFilter] - {}", e.getMessage());
             return;
