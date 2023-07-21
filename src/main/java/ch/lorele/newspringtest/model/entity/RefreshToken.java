@@ -1,21 +1,22 @@
 package ch.lorele.newspringtest.model.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NonNull;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
-@Getter
-@Setter
+import java.time.Instant;
+
+@Document
+@Data
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
 public class RefreshToken {
     @Id
     private String name;
-    @ManyToOne()
-    @JoinColumn(name = "user_id")
-    private User user;
+    @NonNull
+    private String userId;
+    @Indexed(expireAfterSeconds = 604800)
+    private Instant createdAt;
 }

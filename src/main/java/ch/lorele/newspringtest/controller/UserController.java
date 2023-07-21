@@ -1,7 +1,8 @@
 package ch.lorele.newspringtest.controller;
 
+import ch.lorele.newspringtest.model.dto.DetailUserDto;
+import ch.lorele.newspringtest.model.dto.UpdateUserDto;
 import ch.lorele.newspringtest.model.entity.User;
-import ch.lorele.newspringtest.model.dto.UserDto;
 import ch.lorele.newspringtest.service.UserService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,20 +30,26 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
+    @GetMapping("/me")
+    @Secured("USER")
+    public ResponseEntity<DetailUserDto> me() {
+        return ResponseEntity.ok(this.userService.getAuthenticatedUser());
+    }
+
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUser(@PathVariable Long id) {
+    public ResponseEntity<User> getUser(@PathVariable String id) {
         User user = this.userService.fetchById(id);
 
         return ResponseEntity.ok(user);
     }
 
     @PatchMapping("/{id}/update")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody UserDto userDto) {
-        if (userDto.getPassword() != null) {
-            userDto.setPassword(this.passwordEncoder.encode(userDto.getPassword()));
+    public ResponseEntity<User> updateUser(@PathVariable String id, @RequestBody UpdateUserDto updateUserDto) {
+        if (updateUserDto.getPassword() != null) {
+            updateUserDto.setPassword(this.passwordEncoder.encode(updateUserDto.getPassword()));
         }
 
-        User user = this.userService.updateUser(id, userDto);
+        User user = this.userService.updateUser(id, updateUserDto);
 
         return ResponseEntity.ok(user);
     }

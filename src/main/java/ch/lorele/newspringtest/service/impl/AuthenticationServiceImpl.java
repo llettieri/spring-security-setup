@@ -6,10 +6,10 @@ import ch.lorele.newspringtest.model.dto.SignUpRequest;
 import ch.lorele.newspringtest.model.entity.Role;
 import ch.lorele.newspringtest.model.entity.User;
 import ch.lorele.newspringtest.repo.RefreshTokenRepository;
+import ch.lorele.newspringtest.repo.RoleRepository;
 import ch.lorele.newspringtest.service.AuthenticationService;
 import ch.lorele.newspringtest.service.JwtService;
 import ch.lorele.newspringtest.service.UserService;
-import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,19 +30,31 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final UserService userService;
     private final RefreshTokenRepository refreshTokenRepo;
+    private final RoleRepository roleRepo;
 
     @Override
     public AuthenticationResponse signup(SignUpRequest request) {
+        String ROLE = "USER";
+
+        if (!this.roleRepo.existsByName(ROLE)) {
+            this.roleRepo.save(Role.builder().name(ROLE).build());
+        }
+
         User user = User.builder()
                 .fName(request.getFName())
                 .lName(request.getLName())
                 .email(request.getEmail())
                 .password(this.passwordEncoder.encode(request.getPassword()))
-                .roles(Set.of(Role.builder().name("USER").build()))
+                .roles(Set.of(Role.builder().name(ROLE).build()))
                 .build();
 
-        user = this.userService.createUser(user);
-        log.info("[Auth Successful] - User {} successfully created", user.getEmail());
+        try {
+            user = this.userService.createUser(user);
+            log.info("[AuthService] - User {} successfully created", user.getEmail());
+        } catch (Exception e) {
+            log.warn("[AuthService] - {}", e.getMessage());
+            return AuthenticationResponse.builder().errorMessage("duplicate entry").build();
+        }
 
         return AuthenticationResponse.builder()
                 .accessToken(this.jwtService.generateAccessToken(user))
@@ -63,7 +75,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    @Transactional
     public AuthenticationResponse tryRefresh(String refreshToken) {
         if (this.jwtService.isRefreshTokenValid(refreshToken)) {
             String email = this.jwtService.extractEmail(refreshToken);

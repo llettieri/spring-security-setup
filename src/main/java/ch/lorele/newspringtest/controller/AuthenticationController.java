@@ -20,6 +20,11 @@ public class AuthenticationController {
     @PostMapping("/signup")
     public ResponseEntity<AuthenticationResponse> signup(@RequestBody SignUpRequest request) {
         AuthenticationResponse response = this.authenticationService.signup(request);
+
+        if (response.getErrorMessage() != null) {
+            return ResponseEntity.badRequest().body(response);
+        }
+
         return ResponseEntity.ok(response);
     }
 

@@ -48,7 +48,7 @@ public class JwtServiceImpl implements JwtService {
     @Override
     public String generateRefreshToken(User user) {
         String token = this.generateToken(Map.of("type", TokenType.REFRESH), user, this.refreshTokenExpiration);
-        this.refreshTokenRepo.save(RefreshToken.builder().name(token).user(user).build());
+        this.refreshTokenRepo.save(RefreshToken.builder().name(token).userId(user.getId()).createdAt(Instant.now()).build());
         return token;
     }
 

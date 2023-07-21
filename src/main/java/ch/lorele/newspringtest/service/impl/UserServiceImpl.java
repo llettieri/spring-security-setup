@@ -1,12 +1,14 @@
 package ch.lorele.newspringtest.service.impl;
 
+import ch.lorele.newspringtest.model.dto.DetailUserDto;
+import ch.lorele.newspringtest.model.dto.UpdateUserDto;
 import ch.lorele.newspringtest.model.entity.Role;
 import ch.lorele.newspringtest.model.entity.User;
-import ch.lorele.newspringtest.model.dto.UserDto;
 import ch.lorele.newspringtest.repo.UserRepository;
 import ch.lorele.newspringtest.service.UserService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -40,7 +42,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User fetchById(Long id) {
+    public User fetchById(String id) {
         return this.userRepo.findById(id).orElseGet(() -> handleMissingUser(id));
     }
 
@@ -50,15 +52,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User updateUser(Long id, UserDto userDto) {
+    public User updateUser(String id, UpdateUserDto updateUserDto) {
         User user = this.userRepo.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("[UserService] - User with id " + id + " doesn't exist!"));
 
-        String newPassword = userDto.getPassword();
-        String newEmail = userDto.getEmail();
-        String newFName = userDto.getFName();
-        String newLName = userDto.getLName();
-        Set<Role> newRoles = userDto.getRoles();
+        String newPassword = updateUserDto.getPassword();
+        String newEmail = updateUserDto.getEmail();
+        String newFName = updateUserDto.getFName();
+        String newLName = updateUserDto.getLName();
+        Set<Role> newRoles = updateUserDto.getRoles();
 
         if (newPassword != null) {
             user.setPassword(newPassword);
@@ -80,7 +82,17 @@ public class UserServiceImpl implements UserService {
         return this.userRepo.save(user);
     }
 
-    private User handleMissingUser(Long id) {
+    @Override
+    public DetailUserDto getAuthenticatedUser() {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return DetailUserDto.builder()
+                .lName(user.getLName())
+                .fName(user.getFName())
+                .email(user.getEmail())
+                .build();
+    }
+
+    private User handleMissingUser(String id) {
         log.warn("[UserService] - User with id {} not found", id);
         return User.builder().id(id).email("Doesn't exists!").roles(Collections.emptySet()).build();
     }

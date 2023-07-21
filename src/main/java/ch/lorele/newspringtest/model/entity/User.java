@@ -1,35 +1,35 @@
 package ch.lorele.newspringtest.model.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Persistent;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
-@Entity
-@Getter
-@Setter
+
+@Document
+@Data
 @Builder
-@AllArgsConstructor
-@RequiredArgsConstructor
 public class User implements UserDetails {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
     private String fName;
     private String lName;
-    @Column(unique = true)
+    @NonNull
+    @Indexed(unique = true)
     private String email;
+    @NonNull
     private String password;
-    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @Persistent
     private Set<Role> roles;
-    @OneToMany
-    @JoinColumn(name = "name")
-    private List<RefreshToken> refreshTokens;
 
     public void addRoles(Set<Role> roles) {
         this.roles.addAll(roles);
@@ -52,7 +52,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return this.password != null;
+        return true;
     }
 
     @Override

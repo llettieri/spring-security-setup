@@ -8,7 +8,7 @@ import java.util.Set;
 
 @Data
 @Builder
-public class UserDto {
+public class UpdateUserDto {
     private String email;
     private String fName;
     private String lName;
