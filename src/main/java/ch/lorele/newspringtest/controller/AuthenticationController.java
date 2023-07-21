@@ -20,6 +20,11 @@ public class AuthenticationController {
     @PostMapping("/signup")
     public ResponseEntity<AuthenticationResponse> signup(@RequestBody SignUpRequest request) {
         AuthenticationResponse response = this.authenticationService.signup(request);
+
+        if (response.getErrorMessage() != null) {
+            return ResponseEntity.badRequest().body(response);
+        }
+
         return ResponseEntity.ok(response);
     }
 
@@ -32,6 +37,7 @@ public class AuthenticationController {
     @GetMapping("/refresh")
     public ResponseEntity<AuthenticationResponse> refresh(@RequestHeader String authorization) {
         AuthenticationResponse response = this.authenticationService.tryRefresh(authorization);
+
         if (response != null) {
             return ResponseEntity.ok(response);
         }

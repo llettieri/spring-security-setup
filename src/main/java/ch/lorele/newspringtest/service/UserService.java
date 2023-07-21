@@ -1,7 +1,8 @@
 package ch.lorele.newspringtest.service;
 
+import ch.lorele.newspringtest.model.dto.DetailUserDto;
+import ch.lorele.newspringtest.model.dto.UpdateUserDto;
 import ch.lorele.newspringtest.model.entity.User;
-import ch.lorele.newspringtest.model.dto.UserDto;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.List;
@@ -48,5 +49,19 @@ public interface UserService {
      */
     List<User> fetchAllUsers();
 
-    User updateUser(Long id, UserDto userDto);
+    /**
+     * Update users fields
+     *
+     * @param id            userid
+     * @param updateUserDto newUser
+     * @return updatedUser
+     */
+    User updateUser(Long id, UpdateUserDto updateUserDto);
+
+    /**
+     * Get the current authenticated user
+     *
+     * @return authenticated user
+     */
+    DetailUserDto getAuthenticatedUser();
 }
